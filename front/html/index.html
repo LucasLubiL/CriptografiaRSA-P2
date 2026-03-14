@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RSA - Criptografia Assimétrica</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1e24 0%, #2d343a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .card {
+            border-radius: 16px;
+            border: 1px solid #404040;
+            background: #252a32;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card-header {
+            background: #1e2229 !important;
+            border-radius: 16px 16px 0 0 !important;
+            border-bottom: 2px solid #4a90e2;
+            padding: 12px 20px;
+        }
+
+        .card-header h3 {
+            margin: 0;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            font-size: 1.4rem;
+        }
+
+        .card-header h3 i {
+            color: #4a90e2;
+            margin-right: 8px;
+        }
+
+        .card-body {
+            padding: 20px;
+            background: #252a32;
+        }
+
+        /* Layout compacto */
+        .row {
+            margin-bottom: 12px;
+        }
+
+        .col-md-6 {
+            padding: 0 8px;
+        }
+
+        /* TODOS OS TEXTAREAS ESCUROS COM LETRAS BRANCAS */
+        textarea {
+            resize: none;
+            border-radius: 8px !important;
+            border: 1px solid #3a3f48;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            line-height: 1.4;
+            background: #1a1e24 !important;  /* Fundo escuro */
+            color: #ffffff !important;        /* Letras brancas */
+            font-weight: 400;
+        }
+
+        textarea:focus {
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+            background: #232831 !important;
+            color: #ffffff !important;
+        }
+
+        textarea[readonly] {
+            background: #1e2229 !important;   /* Fundo escuro para readonly */
+            border-color: #40464f;
+            color: #ffffff !important;        /* Letras brancas para readonly */
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #e0e0e0;                    /* Labels mais claras */
+            margin-bottom: 4px;
+            font-size: 0.8rem;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* Botões com cores vibrantes e legíveis */
+        .btn {
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: #4a90e2;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #357abd;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+        }
+
+        .btn-success:hover {
+            background: #229954;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+        }
+
+        /* Status com destaque */
+        #status {
+            font-size: 13px;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: #4a90e2;
+            color: #ffffff;
+            font-weight: 600;
+            display: inline-block;
+            border: none;
+            box-shadow: 0 2px 8px rgba(74, 144, 226, 0.3);
+        }
+
+        #status i {
+            color: #ffffff;
+            margin-right: 5px;
+        }
+
+        /* Linhas divisórias mais sutis */
+        hr {
+            border: 0;
+            height: 1px;
+            background: #3a3f48;
+            margin: 15px 0;
+            opacity: 0.5;
+        }
+
+        /* Placeholder mais visível em fundo escuro */
+        ::placeholder {
+            color: #8a8f99 !important;         /* Placeholder cinza claro */
+            font-style: italic;
+            font-size: 12px;
+            opacity: 0.7;
+        }
+
+        /* Ícones com cores */
+        .bi {
+            margin-right: 4px;
+        }
+
+        .form-label .bi {
+            color: #4a90e2;
+            font-size: 0.9rem;
+        }
+
+        /* Ajuste de alturas para caber em uma tela */
+        textarea {
+            height: auto;
+            min-height: 60px;
+            max-height: 80px;
+        }
+
+        #publicKey, #privateKey {
+            min-height: 70px;
+        }
+
+        #encryptedMessage, #decryptedMessage, #message {
+            min-height: 60px;
+        }
+
+        /* Remover espaçamentos extras */
+        .mb-3 {
+            margin-bottom: 12px !important;
+        }
+
+        .mb-4 {
+            margin-bottom: 15px !important;
+        }
+
+        .mt-4 {
+            margin-top: 15px !important;
+        }
+
+        .gap-3 {
+            gap: 10px !important;
+        }
+
+        .g-4 {
+            --bs-gutter-y: 12px;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e2229;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #40464f;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4a90e2;
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-height: 700px) {
+            .card-body {
+                padding: 15px;
+            }
+            
+            textarea {
+                min-height: 50px;
+            }
+            
+            #publicKey, #privateKey {
+                min-height: 60px;
+            }
+            
+            hr {
+                margin: 10px 0;
+            }
+        }
+
+        /* Efeito de hover nos textareas */
+        textarea:hover:not(:focus) {
+            border-color: #4a90e2;
+        }
+
+        /* Garantir que o texto seja sempre branco */
+        .form-control, .form-control:focus, .form-control:read-only {
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container-fluid p-0">
+    <div class="row justify-content-center m-0">
+        <div class="col-12 col-xl-11 p-0">
+            <div class="card shadow-lg">
+
+                <div class="card-header text-center">
+                    <h3>
+                        <i class="bi bi-shield-lock"></i>
+                        RSA - Criptografia Assimétrica
+                    </h3>
+                </div>
+
+                <div class="card-body">
+
+                    <!-- Botão Gerar Chaves -->
+                    <div class="mb-3 text-center">
+                        <button class="btn btn-primary" onclick="generateKeys()">
+                            <i class="bi bi-key-fill"></i>
+                            Gerar Chaves RSA
+                        </button>
+                    </div>
+
+                    <!-- Área das Chaves -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-unlock-fill"></i>
+                                Chave Pública (e,n)
+                            </label>
+                            <textarea id="publicKey" class="form-control" rows="2" readonly 
+                                placeholder="Clique em 'Gerar Chaves'..."></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-lock-fill"></i>
+                                Chave Privada (d,n)
+                            </label>
+                            <textarea id="privateKey" class="form-control" rows="2" readonly 
+                                placeholder="Clique em 'Gerar Chaves'..."></textarea>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Mensagem Original -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-chat-text-fill"></i>
+                            Mensagem
+                        </label>
+                        <textarea id="message" class="form-control" rows="2"
+                                  placeholder="Digite a mensagem para criptografar..."></textarea>
+                    </div>
+
+                    <!-- Botões de Ação -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button class="btn btn-success flex-fill" onclick="encryptMessage()">
+                            <i class="bi bi-lock-fill"></i>
+                            Criptografar
+                        </button>
+
+                        <button class="btn btn-danger flex-fill" onclick="decryptMessage()">
+                            <i class="bi bi-unlock-fill"></i>
+                            Descriptografar
+                        </button>
+                    </div>
+
+                    <hr>
+
+                    <!-- Resultados -->
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-file-lock-fill"></i>
+                                Mensagem Criptografada
+                            </label>
+                            <textarea id="encryptedMessage" class="form-control" rows="2" 
+                                placeholder="Resultado da criptografia..."></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                <i class="bi bi-file-text-fill"></i>
+                                Mensagem Descriptografada
+                            </label>
+                            <textarea id="decryptedMessage" class="form-control" rows="2" readonly 
+                                placeholder="Resultado da descriptografia..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="text-center mt-3">
+                        <span id="status">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            Aguardando ação...
+                        </span>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="../js/app.js"></script>
+</body>
+
+</html>
